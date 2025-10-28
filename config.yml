@@ -1,0 +1,12 @@
+output_dir: "../data"
+run_name: "run_v1"
+ors_url: "https://heal.openrouteservice.org/api-iso/ors/"
+number_of_routes_per_time_of_day: 10 # limit to 100
+times_of_day:
+  - "morning" # 10:00
+  - "noon" #13:00
+  - "afternoon" # 16:00
+  - "evening" # 19:00
+
+
+
