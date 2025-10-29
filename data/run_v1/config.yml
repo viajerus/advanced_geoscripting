@@ -1,7 +1,9 @@
 output_dir: "../data"
 run_name: "run_v1"
+input_gdf: "../geodata/hd.geojson"
 ors_url: "https://heal.openrouteservice.org/api-iso/ors/"
-number_of_routes_per_time_of_day: 10 # limit to 100
+random_points: 400
+number_of_routes_per_time_of_day: 20 # limit to 100
 times_of_day:
   - "morning" # 10:00
   - "noon" #13:00

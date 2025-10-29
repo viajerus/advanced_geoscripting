@@ -14,6 +14,7 @@ class RandomPoints:
     """Class that creates random points within a given polygon"""
     def __init__(self, polygon):
         self.polygon = polygon
+        self.polygon.set_crs("EPSG:4326")
 
     def random_points(self, number:int):
         minx, miny, maxx, maxy = self.polygon.total_bounds
@@ -51,6 +52,8 @@ class RandomPoints:
         # now attach lon2 and lat2
         df1_tail['lon2'] = df2['lon']
         df1_tail['lat2'] = df2['lat']
+
+        df1_tail['id'] = np.arange(0, len(df1_tail))
 
         self.df1_tail = df1_tail
 
