@@ -5,34 +5,44 @@ import argparse
 import logging
 import shutil
 
-from advanced_geoscripting.scripts.utils import load_config
-from advanced_geoscripting.scripts.filepaths import FilePaths
+from scripts.utils import load_config
+from scripts.filepaths import FilePaths, ResultPaths
 from pathlib import Path
-from advanced_geoscripting.scripts.route import Route
+from scripts.route import Route
 
 
 
 
-def calculate_route_metrics(config: dict, filepaths: FilePaths):
+def calculate_route_metrics(config: dict, filepaths: FilePaths, filepaths_res: ResultPaths) -> None:
     """
     Calculate metrics of routes
     :param config: Dictionary containing configuration parameters
     :param filepaths: File paths for input and output files and directories
     :return: None
     """
-    f = Path(__file__).parent / Path("../data/run_v1/01_raw/01_routes/route_0_noon.geojson")
+
+    directory = filepaths.ROUTES_DIR
+
+    desktop = Path(directory)
+
+    for i in desktop.glob("*.geojson"):
+        route = Route(i)
+        r = route.file_name()
+        df = route.summary_criterion('csv')
+        df.to_csv(filepaths_res.CSV_RESULTS_DIR / r)
+
+
+
+    '''f = filepaths.ROUTES_DIR / "route_0_noon_recommended.geojson"
 
     route = Route(f)
 
-    #df = route.as_dataframe()
-
-    #route.plot()
-
-    #route.explore()
+    r = route.file_name()
 
     df = route.summary_criterion('csv')
 
-    print(df)
+    df.to_csv(filepaths_res.CSV_RESULTS_DIR / r)
+    '''
 
 
 
@@ -57,10 +67,10 @@ if __name__ == "__main__":
     logging.info(f"Successfully read config file: {args.config}")
 
     # Create output directories
-    filepaths = FilePaths(config["output_dir_metrics"], config["run_name"])
-    filepaths.create_dirs()
-    print(filepaths.OUTPUT_DIR)
-    logging.info(f"Successfully created output directories in {filepaths.OUTPUT_DIR}")
+    filepaths_res = ResultPaths(config["output_dir_metrics"], config["run_name"])
+    filepaths_res.create_dirs()
+    logging.info(f"Successfully created output directories in {filepaths_res.OUTPUT_DIR}")
 
+    filepaths = FilePaths(config["output_dir"], config["run_name"])
 
-    calculate_route_metrics(config, filepaths)
+    calculate_route_metrics(config, filepaths, filepaths_res)

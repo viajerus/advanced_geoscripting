@@ -8,7 +8,7 @@ import pandas as pd
 import pyproj
 from shapely.geometry import LineString
 
-from advanced_geoscripting.scripts.line import Line
+from scripts.line import Line
 
 
 class Route(Line):
@@ -43,17 +43,17 @@ class Route(Line):
         if self.json_response is None:
             self.load_file()
         self.coordinates = self.json_response["features"][0]["geometry"]['coordinates']
-        print(self.coordinates)
         #self.coordinates['coordinates'] = [tuple(coord) for coord in self.coordinates['coordinates']]
 
     def extract_metadata(self):
         """
         Extracts metadata from the file name.
         """
-        filename = self.file_path.stem
-        name_parts = filename.split("_")
+        self.filename = self.file_path.stem
+        name_parts = self.filename.split("_")
         self.route_id = name_parts[1]
         self.time_of_day = name_parts[2]
+        self.type_route = name_parts[3]
 
     def convert_coordinates(self):
         """Converts coordinates from WGS84 to UTM Zone 32N."""
@@ -114,6 +114,14 @@ class Route(Line):
         try:
             return self.json_response['features'][0]["properties"]["extras"]
         except Exception:
+            return None
+
+    def file_name(self):
+
+        if self.filename is not None:
+            fn = f"{self.route_id}_{self.time_of_day}_{self.type_route}.csv"
+            return fn
+        else:
             return None
 
     def summary_criterion(self, criterion):

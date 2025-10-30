@@ -12,9 +12,9 @@ import json
 
 import openrouteservice as ors
 
-from advanced_geoscripting.scripts.utils import load_config
-from advanced_geoscripting.scripts.filepaths import FilePaths
-from advanced_geoscripting.scripts.spatial import RandomPoints
+from scripts.utils import load_config
+from scripts.filepaths import FilePaths
+from scripts.spatial import RandomPoints
 from itertools import product
 import geopandas as gpd
 
@@ -46,6 +46,8 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
 
     total_requests = 0
 
+    list_modes = ["shortest", "recommended"]
+
     from tqdm import tqdm
     import time, json
 
@@ -55,35 +57,38 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
 
         for i in tqdm(list_times, desc="Times loop", leave=False):
             for row in selected_df.itertuples(index=False):
+                for j in list_modes:
+                    if total_requests >= max_total_requests:
+                        print(f"Reached maximum total requests: {max_total_requests}")
+                        break
+
+                    try:
+                        parameters['coordinates'] = [[row.lon, row.lat], [row.lon2, row.lat2]]
+                        parameters['preference'] = j
+                        parameters["options"]["profile_params"]["weightings"]["csv_column"] = i
+
+                        ors_response = client.request(
+                            url="v2/directions/foot-walking/geojson",
+                            post_json=parameters,
+                            requests_kwargs={"headers": headers},
+                        )
+
+                        out_path = filepaths.ROUTES_DIR / f"route_{row.id}_{i}_{j}.geojson"
+                        print(row.id)
+                        with open(out_path, "w") as f:
+                            json.dump(ors_response, f)
+
+                    except Exception as e:
+                        print(f"Error for row {row.id} at time {i}: {e}")
+                        err_iso.append(row)
+
+                    finally:
+                        total_requests += 1
+                        time.sleep(0.1)
+
                 if total_requests >= max_total_requests:
                     print(f"Reached maximum total requests: {max_total_requests}")
                     break
-
-                try:
-                    parameters['coordinates'] = [[row.lon, row.lat], [row.lon2, row.lat2]]
-                    parameters["options"]["profile_params"]["weightings"]["csv_column"] = i
-
-                    ors_response = client.request(
-                        url="v2/directions/foot-walking/geojson",
-                        post_json=parameters,
-                        requests_kwargs={"headers": headers},
-                    )
-
-                    out_path = filepaths.ROUTES_DIR / f"route_{row.id}_{i}.geojson"
-                    with open(out_path, "w") as f:
-                        json.dump(ors_response, f)
-
-                except Exception as e:
-                    print(f"Error for row {row.id} at time {i}: {e}")
-                    err_iso.append(row)
-
-                finally:
-                    total_requests += 1
-                    time.sleep(0.1)
-
-            if total_requests >= max_total_requests:
-                print(f"Reached maximum total requests: {max_total_requests}")
-                break
     else:
         print("error")
 
