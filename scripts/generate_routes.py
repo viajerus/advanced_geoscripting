@@ -46,13 +46,17 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
 
     total_requests = 0
 
+    from tqdm import tqdm
+    import time, json
 
     if max_routes_per_i <= 100:
-
+        # Take the first n rows once
+        selected_df = df.head(max_routes_per_i)
 
         for i in tqdm(list_times, desc="Times loop", leave=False):
-            for _, row in df.iterrows():
+            for row in selected_df.itertuples(index=False):
                 if total_requests >= max_total_requests:
+                    print(f"Reached maximum total requests: {max_total_requests}")
                     break
 
                 try:
@@ -60,21 +64,22 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
                     parameters["options"]["profile_params"]["weightings"]["csv_column"] = i
 
                     ors_response = client.request(
-                        url=f"v2/directions/foot-walking/geojson",
+                        url="v2/directions/foot-walking/geojson",
                         post_json=parameters,
                         requests_kwargs={"headers": headers},
                     )
 
-                    with open(filepaths.ROUTES_DIR / f"route_{row.id}_{i}.geojson", "w") as f:
+                    out_path = filepaths.ROUTES_DIR / f"route_{row.id}_{i}.geojson"
+                    with open(out_path, "w") as f:
                         json.dump(ors_response, f)
-
-                    total_requests += 1
-                    time.sleep(0.1)
 
                 except Exception as e:
                     print(f"Error for row {row.id} at time {i}: {e}")
                     err_iso.append(row)
+
+                finally:
                     total_requests += 1
+                    time.sleep(0.1)
 
             if total_requests >= max_total_requests:
                 print(f"Reached maximum total requests: {max_total_requests}")
@@ -110,6 +115,8 @@ if __name__ == "__main__":
     list_times = config['times_of_day']
 
     max_routes_per_i = config['number_of_routes_per_time_of_day']
+
+    print(max_routes_per_i)
 
     gdf = gpd.read_file(config["input_gdf"])
 

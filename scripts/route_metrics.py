@@ -20,11 +20,11 @@ def calculate_route_metrics(config: dict, filepaths: FilePaths):
     :param filepaths: File paths for input and output files and directories
     :return: None
     """
-    f = Path(__file__).parent / Path("../data/run_v1/01_raw/01_routes/route_2.0_noon.geojson")
+    f = Path(__file__).parent / Path("../data/run_v1/01_raw/01_routes/route_0_noon.geojson")
 
     route = Route(f)
 
-    route.as_dataframe()
+    #df = route.as_dataframe()
 
     #route.plot()
 
@@ -32,15 +32,7 @@ def calculate_route_metrics(config: dict, filepaths: FilePaths):
 
     df = route.summary_criterion('csv')
 
-    route.solar_exposure
-
-
-
-
-
-
-
-
+    print(df)
 
 
 
