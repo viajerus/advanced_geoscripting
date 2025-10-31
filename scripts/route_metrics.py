@@ -9,6 +9,7 @@ from scripts.utils import load_config
 from scripts.filepaths import FilePaths, ResultPaths
 from pathlib import Path
 from scripts.route import Route
+import pandas as pd
 
 
 
@@ -25,12 +26,21 @@ def calculate_route_metrics(config: dict, filepaths: FilePaths, filepaths_res: R
 
     desktop = Path(directory)
 
+    dataframes = []
+
     for i in desktop.glob("*.geojson"):
         route = Route(i)
         r = route.file_name()
         df = route.summary_criterion('csv')
-        df.to_csv(filepaths_res.CSV_RESULTS_DIR / r)
+        s_exp = route.solar_exposure()
+        df['s_exp'] = s_exp
+        df['source'] = r
+        dataframes.append(df)
 
+
+    df_all = pd.concat(dataframes)
+
+    df_all.to_parquet(filepaths_res.CSV_RESULTS_DIR / 'all.parquet')
 
 
     '''f = filepaths.ROUTES_DIR / "route_0_noon_recommended.geojson"

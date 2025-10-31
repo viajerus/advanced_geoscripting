@@ -74,7 +74,6 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
                         )
 
                         out_path = filepaths.ROUTES_DIR / f"route_{row.id}_{i}_{j}.geojson"
-                        print(row.id)
                         with open(out_path, "w") as f:
                             json.dump(ors_response, f)
 
@@ -109,6 +108,8 @@ if __name__ == "__main__":
     config = load_config(args.config)
     logging.info(f"Successfully read config file: {args.config}")
 
+    print(config)
+
     # Create output directories
     filepaths = FilePaths(config["output_dir"], config["run_name"])
     filepaths.create_dirs()
@@ -122,6 +123,7 @@ if __name__ == "__main__":
     max_routes_per_i = config['number_of_routes_per_time_of_day']
 
     print(max_routes_per_i)
+
 
     gdf = gpd.read_file(config["input_gdf"])
 

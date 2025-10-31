@@ -119,7 +119,7 @@ class Route(Line):
     def file_name(self):
 
         if self.filename is not None:
-            fn = f"{self.route_id}_{self.time_of_day}_{self.type_route}.csv"
+            fn = f"route_{self.route_id}_{self.time_of_day}_{self.type_route}"
             return fn
         else:
             return None
@@ -137,7 +137,7 @@ class Route(Line):
         else:
             raise ValueError("criterion '%s' does not exist.")
 
-    @property
+
     def solar_exposure(self):
         """
         Returns the overall exposure to solar radiation of the route
@@ -145,3 +145,4 @@ class Route(Line):
         """
         summary = self.summary_criterion("csv")
         return sum(summary["value"] * summary["distance"]) / summary["distance"].sum()
+
