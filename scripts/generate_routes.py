@@ -2,29 +2,23 @@
 # -*- coding: utf-8 -*-
 """Script that downloads routes using openrouteservice API."""
 
+from scripts.utils import load_config
+from scripts.filepaths import FilePaths
+from scripts.spatial import RandomPoints
+
 import argparse
 import json
 import logging
 import shutil
 from tqdm import tqdm
 import time
-import json
-
 import openrouteservice as ors
-
-import os
-
-print(os.getcwd())
-
-from scripts.utils import load_config
-from scripts.filepaths import FilePaths
-from scripts.spatial import RandomPoints
-from itertools import product
 import geopandas as gpd
 
 
-
-def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_total_requests=500):
+def download_routes(
+    df, config, filepaths, list_times, max_routes_per_i, max_total_requests=500
+):
     """Download routes from OpenRouteService API and save them to a file."""
 
     headers = {
@@ -52,9 +46,6 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
 
     list_modes = ["shortest", "recommended"]
 
-    from tqdm import tqdm
-    import time, json
-
     if max_routes_per_i <= 100:
         # Take the first n rows once
         selected_df = df.head(max_routes_per_i)
@@ -67,9 +58,14 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
                         break
 
                     try:
-                        parameters['coordinates'] = [[row.lon, row.lat], [row.lon2, row.lat2]]
-                        parameters['preference'] = j
-                        parameters["options"]["profile_params"]["weightings"]["csv_column"] = i
+                        parameters["coordinates"] = [
+                            [row.lon, row.lat],
+                            [row.lon2, row.lat2],
+                        ]
+                        parameters["preference"] = j
+                        parameters["options"]["profile_params"]["weightings"][
+                            "csv_column"
+                        ] = i
 
                         ors_response = client.request(
                             url="v2/directions/foot-walking/geojson",
@@ -77,7 +73,9 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
                             requests_kwargs={"headers": headers},
                         )
 
-                        out_path = filepaths.ROUTES_DIR / f"route_{row.id}_{i}_{j}.geojson"
+                        out_path = (
+                            filepaths.ROUTES_DIR / f"route_{row.id}_{i}_{j}.geojson"
+                        )
                         with open(out_path, "w") as f:
                             json.dump(ors_response, f)
 
@@ -97,8 +95,6 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
 
 
 if __name__ == "__main__":
-
-
     # Set up logging
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -122,24 +118,22 @@ if __name__ == "__main__":
     # Copy config file to output directory
     shutil.copy(args.config, filepaths.OUTPUT_DIR)
 
-
     # Extract list times from config file
-    list_times = config['times_of_day']
+    list_times = config["times_of_day"]
 
-    #Extract max of routes per times of day
-    max_routes_per_i = config['number_of_routes_per_time_of_day']
+    # Extract max of routes per times of day
+    max_routes_per_i = config["number_of_routes_per_time_of_day"]
 
-    #Extract input Geodataframe (boundaries of HD)
+    # Extract input Geodataframe (boundaries of HD)
     gdf = gpd.read_file(config["input_gdf"])
 
-    #Calculates the amount of random points for the AOI.
+    # Calculates the amount of random points for the AOI.
     rp = RandomPoints(gdf)
     rp.random_points(config["random_points"])
     rp.sample_df()
-    #Returns a Geodatframe with max. 100 routes
+    # Returns a Geodatframe with max. 100 routes
     out_df = rp.compute_distance()
-    #Creates and stores the routes.
+    # Creates and stores the routes.
     download_routes(out_df, config, filepaths, list_times, max_routes_per_i)
 
-    logging.info(f"Successfully calculated and stores the routes")
-
+    logging.info("Successfully calculated and stores the routes")

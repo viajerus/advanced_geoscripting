@@ -35,15 +35,13 @@ class Route(Line):
         with open(self.file_path) as src:
             self.json_response = json.load(src)
 
-
     def extract_coordinates(self):
         """
         Loads route from file
         """
         if self.json_response is None:
             self.load_file()
-        self.coordinates = self.json_response["features"][0]["geometry"]['coordinates']
-
+        self.coordinates = self.json_response["features"][0]["geometry"]["coordinates"]
 
     def extract_metadata(self):
         """
@@ -112,12 +110,11 @@ class Route(Line):
         :return:
         """
         try:
-            return self.json_response['features'][0]["properties"]["extras"]
+            return self.json_response["features"][0]["properties"]["extras"]
         except Exception:
             return None
 
     def file_name(self):
-
         if self.filename is not None:
             fn = f"route_{self.route_id}_{self.time_of_day}_{self.type_route}"
             return fn
@@ -137,7 +134,6 @@ class Route(Line):
         else:
             raise ValueError("criterion '%s' does not exist.")
 
-
     def solar_exposure(self):
         """
         Returns the overall exposure to solar radiation of the route
@@ -145,4 +141,3 @@ class Route(Line):
         """
         summary = self.summary_criterion("csv")
         return sum(summary["value"] * summary["distance"]) / summary["distance"].sum()
-

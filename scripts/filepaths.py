@@ -22,11 +22,10 @@ class FilePaths:
         self.PREPROCESSED_ROUTES_FILE = self.INTERIM_DIR / "preprocessed_routes.gpkg"
 
     def create_dirs(self) -> None:
-        """ Creats sub directories :return: """
+        """Creats sub directories :return:"""
         for var, path in self.__dict__.items():
             if str(var).endswith("_DIR"):
                 path.mkdir(parents=False, exist_ok=True)
-
 
 
 class ResultPaths:
