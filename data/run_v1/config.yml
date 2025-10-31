@@ -1,5 +1,5 @@
 output_dir: "./data"
-output_dir_metrics: "../results"
+output_dir_metrics: "./results"
 run_name: "run_v1"
 input_gdf: "./geodata/hd.geojson"
 ors_url: "https://heal.openrouteservice.org/api-iso/ors/"
