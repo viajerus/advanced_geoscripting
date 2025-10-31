@@ -43,7 +43,7 @@ class Route(Line):
         if self.json_response is None:
             self.load_file()
         self.coordinates = self.json_response["features"][0]["geometry"]['coordinates']
-        #self.coordinates['coordinates'] = [tuple(coord) for coord in self.coordinates['coordinates']]
+
 
     def extract_metadata(self):
         """

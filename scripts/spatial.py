@@ -14,7 +14,7 @@ class RandomPoints:
     """Class that creates random points within a given polygon"""
     def __init__(self, polygon):
         self.polygon = polygon
-        self.polygon.set_crs("EPSG:4326")
+        self.polygon = self.polygon.to_crs("EPSG:4326")
 
     def random_points(self, number:int):
         minx, miny, maxx, maxy = self.polygon.total_bounds
