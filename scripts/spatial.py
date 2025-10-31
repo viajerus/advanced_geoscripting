@@ -40,6 +40,7 @@ class RandomPoints:
 
 
     def sample_df(self):
+        """Creates a dataframe with max. 100 sample routes"""
         self.pnts_in_poly.loc[:, 'lon'] = self.pnts_in_poly.geometry.x
         self.pnts_in_poly.loc[:, 'lat'] = self.pnts_in_poly.geometry.y
         del self.pnts_in_poly['points']

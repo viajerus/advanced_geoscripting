@@ -14,10 +14,9 @@ import pandas as pd
 
 
 
-def calculate_route_metrics(config: dict, filepaths: FilePaths, filepaths_res: ResultPaths) -> None:
+def calculate_route_metrics(filepaths: FilePaths, filepaths_res: ResultPaths) -> None:
     """
     Calculate metrics of routes
-    :param config: Dictionary containing configuration parameters
     :param filepaths: File paths for input and output files and directories
     :return: None
     """
@@ -41,22 +40,6 @@ def calculate_route_metrics(config: dict, filepaths: FilePaths, filepaths_res: R
     df_all = pd.concat(dataframes)
 
     df_all.to_parquet(filepaths_res.CSV_RESULTS_DIR / 'all.parquet')
-
-
-    '''f = filepaths.ROUTES_DIR / "route_0_noon_recommended.geojson"
-
-    route = Route(f)
-
-    r = route.file_name()
-
-    df = route.summary_criterion('csv')
-
-    df.to_csv(filepaths_res.CSV_RESULTS_DIR / r)
-    '''
-
-
-
-
 
 
 
@@ -83,4 +66,8 @@ if __name__ == "__main__":
 
     filepaths = FilePaths(config["output_dir"], config["run_name"])
 
-    calculate_route_metrics(config, filepaths, filepaths_res)
+    #Calculates the metrics for the routes. Output file is one parquet file.
+
+    calculate_route_metrics(filepaths, filepaths_res)
+
+    logging.info(f"Successfully calculated parquet file with metrics")

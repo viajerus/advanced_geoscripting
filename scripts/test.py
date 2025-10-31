@@ -28,8 +28,8 @@ def test_random_points_within_polygon():
     polygon = box(*heidelberg_bbox)
     heidelberg_polygon_gdf = gpd.GeoDataFrame(geometry=[polygon], crs='EPSG:4326')
     rp = RandomPoints(heidelberg_polygon_gdf)
-
     rp.random_points(50)
+
     for point in rp.pnts_in_poly.geometry:
         assert heidelberg_polygon_gdf.contains(point).any()
 
@@ -39,10 +39,10 @@ def test_sample_df_columns():
     polygon = box(*heidelberg_bbox)
     heidelberg_polygon_gdf = gpd.GeoDataFrame(geometry=[polygon], crs='EPSG:4326')
     rp = RandomPoints(heidelberg_polygon_gdf)
-
     rp.random_points(300)
     rp.sample_df()
     expected_columns = {'lon', 'lat', 'lon2', 'lat2', 'id'}
+
     assert set(rp.df1_tail.columns) == expected_columns
 
 
@@ -51,7 +51,6 @@ def test_compute_distance_non_negative():
     polygon = box(*heidelberg_bbox)
     heidelberg_polygon_gdf = gpd.GeoDataFrame(geometry=[polygon], crs='EPSG:4326')
     rp = RandomPoints(heidelberg_polygon_gdf)
-
     rp.random_points(300)
     rp.sample_df()
     df_distances = rp.compute_distance()

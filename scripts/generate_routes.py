@@ -12,6 +12,10 @@ import json
 
 import openrouteservice as ors
 
+import os
+
+print(os.getcwd())
+
 from scripts.utils import load_config
 from scripts.filepaths import FilePaths
 from scripts.spatial import RandomPoints
@@ -93,6 +97,8 @@ def download_routes(df, config, filepaths, list_times, max_routes_per_i, max_tot
 
 
 if __name__ == "__main__":
+
+
     # Set up logging
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -108,8 +114,6 @@ if __name__ == "__main__":
     config = load_config(args.config)
     logging.info(f"Successfully read config file: {args.config}")
 
-    print(config)
-
     # Create output directories
     filepaths = FilePaths(config["output_dir"], config["run_name"])
     filepaths.create_dirs()
@@ -118,20 +122,24 @@ if __name__ == "__main__":
     # Copy config file to output directory
     shutil.copy(args.config, filepaths.OUTPUT_DIR)
 
+
+    # Extract list times from config file
     list_times = config['times_of_day']
 
+    #Extract max of routes per times of day
     max_routes_per_i = config['number_of_routes_per_time_of_day']
 
-    print(max_routes_per_i)
-
-
+    #Extract input Geodataframe (boundaries of HD)
     gdf = gpd.read_file(config["input_gdf"])
 
+    #Calculates the amount of random points for the AOI.
     rp = RandomPoints(gdf)
     rp.random_points(config["random_points"])
     rp.sample_df()
-
+    #Returns a Geodatframe with max. 100 routes
     out_df = rp.compute_distance()
-
+    #Creates and stores the routes.
     download_routes(out_df, config, filepaths, list_times, max_routes_per_i)
+
+    logging.info(f"Successfully calculated and stores the routes")
 
