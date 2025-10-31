@@ -47,8 +47,3 @@ Daniel Abanto // abanto@stud.uni-heidelberg.de
 
 
 
-## Acknowledgments
-
-Inspiration, code snippets, etc.
-* [skforecast](https://cienciadedatos.net/documentos/py64-clustering-time-series-forecasting)
-
